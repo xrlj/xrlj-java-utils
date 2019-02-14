@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.xrlj</groupId>
+        <artifactId>xrlj-dependencies</artifactId>
+        <version>0.0.1</version>
+        <relativePath/>
+    </parent>
+    <groupId>com.xrlj</groupId>
+    <artifactId>xrlj-java-utils</artifactId>
+    <version>0.0.1</version>
+    <packaging>jar</packaging>
+
+    <name>xrlj-java-utils</name>
+    <description>java工具库</description>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+
+        <!--防止maven改动IDE的language level -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--这样打包，不能作为lib形式调用-->
+            <!--<plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>-->
+
+            <!--打包成lib-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <fork>true</fork>
+                    <maxmem>1024m</maxmem>
+                    <meminitial>256m</meminitial>
+                    <encoding>UTF-8</encoding>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <debug>true</debug>
+                    <debuglevel>lines,vars,source</debuglevel>
+                    <!-- [#2413] Make compiler warnings a bit more visible But don't fail
+                        (yet) -->
+                    <compilerArgs>
+                        <arg>-Xlint:varargs</arg>
+                    </compilerArgs>
+                    <!--不打包下面文件-->
+                    <excludes>
+                        <exclude>**/simsun.ttc</exclude>
+                        <exclude>**/wkhtmltopdf</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
+            <!-- javadoc生成插件。使用：http://maven.apache.org/components/plugins/maven-javadoc-plugin -->
+            <!-- 执行命令：mvn javadoc:javadoc 将生成doc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <configuration>
+                    <encoding>UTF-8</encoding>
+                    <!-- 显示私有变量 -->
+                    <show>private</show>
+                    <links>
+                        <link>http://commons.apache.org/dbcp/apidocs/</link>
+                    </links>
+                    <!-- 排除不生成doc的包 -->
+                    <!-- <excludePackageNames>com.ymu.framework.utils:com.ymu.framework.web.controller</excludePackageNames> -->
+                    <excludePackageNames>com.ymu.framework.web.controller</excludePackageNames>
+                    <!-- 生成doc路径 -->
+                    <reportOutputDirectory>apidocs</reportOutputDirectory>
+                    <!-- doc目录名称 -->
+                    <!-- <destDir>ymu-framework</destDir> -->
+                    <destDir></destDir>
+                </configuration>
+                <!-- <dependencies> 自动修复不规范注解 <dependency> <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>clirr-maven-plugin</artifactId> <version>2.8</version> </dependency>
+                    </dependencies> -->
+            </plugin>
+
+            <!--单元测试插件-->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!--不运行单元测试-->
+                    <skipTests>true</skipTests>
+                    <!-- set heap size to work around http://github.com/travis-ci/travis-ci/issues/3396 -->
+                    <!--<argLine>-Xmx1024m</argLine>-->
+                </configuration>
+            </plugin>
+
+        </plugins>
+    </build>
+
+</project>
