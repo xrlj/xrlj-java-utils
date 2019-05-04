@@ -134,7 +134,6 @@ public abstract class AbstractSqlBuilder<T> {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sql().sql(sb);
-        System.out.println("执行sql语句：" + sb.toString());
         return sb.toString();
     }
 
