@@ -5,11 +5,20 @@ import javax.crypto.SecretKey;
 
 import org.apache.commons.codec.binary.Hex;
 
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 生成密钥辅助类。
  * @author xinxiamu
  */
-public class KeyTools {
+public final class KeyTools {
+
+	private KeyTools(){}
 
 	/**
 	 * 对称加密算法生成密钥。每次都不一样。
@@ -33,5 +42,4 @@ public class KeyTools {
 		}
 		return null;
 	}
-	
 }
