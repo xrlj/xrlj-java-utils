@@ -3,12 +3,9 @@ package com.xrlj.utils.authenticate;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.exceptions.JWTCreationException;
-import com.auth0.jwt.exceptions.JWTDecodeException;
-import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.exceptions.*;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.xrlj.utils.PrintUtil;
-import com.xrlj.utils.security.Base64Utils;
 
 import java.time.Instant;
 import java.util.Date;
@@ -57,7 +54,7 @@ public final class JwtUtils {
         return "";
     }
 
-    public static boolean verifyToken(long userId, String username, String userType, String secret,String token) throws Exception {
+    public static VerifyTokenResult verifyToken(long userId, String username, String userType, String secret,String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm)
@@ -66,26 +63,95 @@ public final class JwtUtils {
                     .withClaim("username", username)
                     .withClaim("userType", userType)
                     .build();
-            DecodedJWT jwt = verifier.verify(token);
-            return true;
+            verifier.verify(token);
+            return VerifyTokenResult.VERIFY_OK;
         } catch (JWTVerificationException e) {
-            throw e;
+            e.printStackTrace();
+            if (e instanceof SignatureVerificationException) {
+                return VerifyTokenResult.SIGNATURE_ERROR;
+            }
+            if (e instanceof InvalidClaimException) {
+                return VerifyTokenResult.INVALID_CLAIM_ERROR;
+            }
+            if (e instanceof TokenExpiredException) {
+                return VerifyTokenResult.TOKEN_EXPIRED_ERROR;
+            }
         }
+        return VerifyTokenResult.VERIFY_ERROR_UNKNOW;
     }
 
-    public static void main(String[] args) throws Exception {
-//        String token = genAnSignToken(111, "zmt","a","abc",3 *60 * 1000);
-//        PrintUtil.println(token);
-
-        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ4cmxqIiwidXNlclR5cGUiOiJhIiwiZXhwIjoxNTU4NzE1NDE3LCJ1c2VySWQiOjExMSwidXNlcm5hbWUiOiJ6bXQifQ.Twwsp0OAnwL-tHv_wSkVryEVQwU2-uTGfqT97S9HCvs";
-//        boolean a = verifyToken(111,"zmt","a","abc",token);
-//        PrintUtil.println(a);
-
+    /**
+     *
+     * @param secret
+     * @param token
+     * @return
+     */
+    public static VerifyTokenResult verifyToken(String secret,String token) {
         try {
-            DecodedJWT jwt = JWT.decode(token);
-            PrintUtil.println(Base64Utils.base64Decode(jwt.getPayload()));
-        } catch (JWTDecodeException exception){
-            //Invalid token
+            Algorithm algorithm = Algorithm.HMAC256(secret);
+            JWTVerifier verifier = JWT.require(algorithm)
+                    .withIssuer("xrlj")
+                    .build();
+            verifier.verify(token);
+            return VerifyTokenResult.VERIFY_OK;
+        } catch (JWTVerificationException e) {
+            e.printStackTrace();
+            if (e instanceof SignatureVerificationException) {
+                return VerifyTokenResult.SIGNATURE_ERROR;
+            }
+            if (e instanceof InvalidClaimException) {
+                return VerifyTokenResult.INVALID_CLAIM_ERROR;
+            }
+            if (e instanceof TokenExpiredException) {
+                return VerifyTokenResult.TOKEN_EXPIRED_ERROR;
+            }
+        }
+        return VerifyTokenResult.VERIFY_ERROR_UNKNOW;
+    }
+
+    /**
+     * token是否过期
+     * @return true：过期
+     */
+    public static boolean isTokenExpired(String token) {
+        Instant now = Instant.now();
+        DecodedJWT jwt = JWT.decode(token);
+        return jwt.getExpiresAt().toInstant().isBefore(now);
+    }
+
+    static enum VerifyTokenResult {
+        VERIFY_OK("校验token成功"),
+        SIGNATURE_ERROR("签名信息错误，可能被篡改"),
+        INVALID_CLAIM_ERROR("包含无效主体信息"),
+        TOKEN_EXPIRED_ERROR("token已过期"),
+        VERIFY_ERROR_UNKNOW("校验token失败");
+
+        private final String value;
+
+        VerifyTokenResult(String value) {
+            this.value = value;
+        }
+
+        public String getValue() {
+            return value;
         }
     }
+
+//    public static void main(String[] args) throws Exception {
+//        String token = genAnSignToken(111, "zmt","a","abc",2 *60 * 1000);
+//        PrintUtil.println(token);
+//
+//        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ4cmxqIiwidXNlclR5cGUiOiJhIiwiZXhwIjoxNTU4NzcxMDUxLCJ1c2VySWQiOjExMSwidXNlcm5hbWUiOiJ6bXQifQ.7LFGu4PDW-YRqWw4fI4pP_nPJQGvXHwC1FQXhlJIrEE";
+//        PrintUtil.println(isTokenExpired(token));
+//
+//        try {
+//            DecodedJWT jwt = JWT.decode(token);
+//            PrintUtil.println(Base64Utils.base64Decode(jwt.getPayload()));
+//            PrintUtil.println(jwt.getClaim("username").asString());
+//            Date aaa = jwt.getExpiresAt();
+//            PrintUtil.println(DateUtil.dateToString(aaa));
+//        } catch (JWTDecodeException exception){
+//            //Invalid token
+//        }
+//    }
 }
