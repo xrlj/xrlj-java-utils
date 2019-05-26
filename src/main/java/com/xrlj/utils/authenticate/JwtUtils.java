@@ -54,6 +54,15 @@ public final class JwtUtils {
         return "";
     }
 
+    /**
+     * 校验token
+     * @param userId
+     * @param username
+     * @param userType
+     * @param secret
+     * @param token
+     * @return
+     */
     public static VerifyTokenResult verifyToken(long userId, String username, String userType, String secret,String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
@@ -67,11 +76,11 @@ public final class JwtUtils {
             return VerifyTokenResult.VERIFY_OK;
         } catch (JWTVerificationException e) {
             e.printStackTrace();
-            if (e instanceof SignatureVerificationException) {
-                return VerifyTokenResult.SIGNATURE_ERROR;
-            }
             if (e instanceof InvalidClaimException) {
                 return VerifyTokenResult.INVALID_CLAIM_ERROR;
+            }
+            if (e instanceof SignatureVerificationException) {
+                return VerifyTokenResult.SIGNATURE_ERROR;
             }
             if (e instanceof TokenExpiredException) {
                 return VerifyTokenResult.TOKEN_EXPIRED_ERROR;
@@ -81,7 +90,7 @@ public final class JwtUtils {
     }
 
     /**
-     *
+     * 校验token
      * @param secret
      * @param token
      * @return
@@ -119,7 +128,12 @@ public final class JwtUtils {
         return jwt.getExpiresAt().toInstant().isBefore(now);
     }
 
-    static enum VerifyTokenResult {
+    public static <T> T getPubClaimValue(String token, String keyName, Class<T> clazz) {
+        DecodedJWT jwt = JWT.decode(token);
+        return jwt.getClaim(keyName).as(clazz);
+    }
+
+    public static enum VerifyTokenResult {
         VERIFY_OK("校验token成功"),
         SIGNATURE_ERROR("签名信息错误，可能被篡改"),
         INVALID_CLAIM_ERROR("包含无效主体信息"),
