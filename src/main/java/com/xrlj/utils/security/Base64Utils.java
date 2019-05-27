@@ -16,7 +16,58 @@ import org.apache.commons.io.IOUtils;
  */
 public final class Base64Utils {
 
+	private static final byte[] base64Alphabet = new byte[255];
+
 	private Base64Utils() {
+	}
+
+	private static boolean isBase64(byte octect) {
+		if (octect == 61) {
+			return true;
+		} else {
+			return octect >= 0 && base64Alphabet[octect] != -1;
+		}
+	}
+
+	public static boolean isBase64(byte[] arrayOctect) {
+		arrayOctect = discardWhitespace(arrayOctect);
+		int length = arrayOctect.length;
+		if (length == 0) {
+			return true;
+		} else {
+			for(int i = 0; i < length; ++i) {
+				if (!isBase64(arrayOctect[i])) {
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
+	static byte[] discardWhitespace(byte[] data) {
+		byte[] groomedData = new byte[data.length];
+		int bytesCopied = 0;
+		byte[] packedData = data;
+		int var4 = data.length;
+		int var5 = 0;
+
+		while(var5 < var4) {
+			byte aByte = packedData[var5];
+			switch(aByte) {
+				default:
+					groomedData[bytesCopied++] = aByte;
+				case 9:
+				case 10:
+				case 13:
+				case 32:
+					++var5;
+			}
+		}
+
+		packedData = new byte[bytesCopied];
+		System.arraycopy(groomedData, 0, packedData, 0, bytesCopied);
+		return packedData;
 	}
 
 	/**
