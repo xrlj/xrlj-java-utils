@@ -20,6 +20,14 @@ public final class StringUtil extends org.apache.commons.lang3.StringUtils {
 ////		System.out.println(isNumeric("3"));
 //	}
 
+	public static boolean isDouble(String str) {
+		if (null == str || "".equals(str)) {
+			return false;
+		}
+		Pattern pattern = Pattern.compile("^[-\\+]?[.\\d]*$");
+		return pattern.matcher(str).matches();
+	}
+
 	/**
 	 *  判断字符串是否为整数。
  	 * @param str
