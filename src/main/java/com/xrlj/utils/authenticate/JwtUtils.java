@@ -128,6 +128,12 @@ public final class JwtUtils {
         return jwt.getExpiresAt().toInstant().isBefore(now);
     }
 
+    public static long  getExpires(String token) {
+        DecodedJWT jwt = JWT.decode(token);
+        Date expiresTime = jwt.getExpiresAt();
+        return expiresTime.toInstant().toEpochMilli();
+    }
+
     public static <T> T getPubClaimValue(String token, String keyName, Class<T> clazz) {
         DecodedJWT jwt = JWT.decode(token);
         return jwt.getClaim(keyName).as(clazz);
