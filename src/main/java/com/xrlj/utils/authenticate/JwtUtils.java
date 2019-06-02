@@ -16,7 +16,7 @@ import java.util.Date;
 public final class JwtUtils {
 
     //token过期时间，默认5分钟
-    private static final long EXPIRE_TIME_DEFAULT = 5 * 60 * 1000; //毫秒
+    private static final long EXPIRE_TIME_DEFAULT = 30 * 60 * 1000; //毫秒
 
     private JwtUtils() {
     }
@@ -128,10 +128,15 @@ public final class JwtUtils {
         return jwt.getExpiresAt().toInstant().isBefore(now);
     }
 
+    /**
+     * 返回过期时间。秒时间戳
+     * @param token
+     * @return 返回秒时间戳
+     */
     public static long  getExpires(String token) {
         DecodedJWT jwt = JWT.decode(token);
         Date expiresTime = jwt.getExpiresAt();
-        return expiresTime.toInstant().toEpochMilli();
+        return expiresTime.toInstant().toEpochMilli()/1000;
     }
 
     public static <T> T getPubClaimValue(String token, String keyName, Class<T> clazz) {
