@@ -1,16 +1,10 @@
 package com.xrlj.utils.security;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
-
 import org.apache.commons.codec.binary.Hex;
 
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.util.HashMap;
-import java.util.Map;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import java.security.SecureRandom;
 
 /**
  * 生成密钥辅助类。
@@ -41,5 +35,21 @@ public final class KeyTools {
 			e.printStackTrace();
 		}
 		return null;
+	}
+
+	/**
+	 * 生成盐。
+	 *
+	 * @return
+	 */
+	public final static String generateSalt(int numBytes) {
+		if (numBytes <= 0) {
+			throw new IllegalArgumentException("numBytes argument must be a positive integer (1 or larger)");
+		} else {
+			SecureRandom secureRandom = new SecureRandom();
+			byte[] bytes = new byte[numBytes];
+			secureRandom.nextBytes(bytes);
+			return Hex.encodeHexString(bytes);
+		}
 	}
 }

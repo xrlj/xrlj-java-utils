@@ -6,13 +6,10 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.*;
 import com.auth0.jwt.interfaces.DecodedJWT;
-import com.xrlj.utils.PrintUtil;
-import com.xrlj.utils.security.Base64Utils;
-import com.xrlj.utils.time.DateUtil;
+import com.xrlj.utils.security.KeyTools;
 
 import java.time.Instant;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -147,6 +144,15 @@ public final class JwtUtils {
         public String getValue() {
             return value;
         }
+    }
+
+    /**
+     * 生成随机盐,长度32位
+     * @return
+     */
+    public static String generateSalt(){
+        String salt = KeyTools.generateSalt(16);
+        return salt;
     }
 
 //    public static void main(String[] args) throws Exception {

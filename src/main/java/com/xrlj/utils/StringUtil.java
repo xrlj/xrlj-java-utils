@@ -18,6 +18,8 @@ public final class StringUtil extends org.apache.commons.lang3.StringUtils {
 ////		System.out.println(isInteger("3.9"));
 //
 ////		System.out.println(isNumeric("3"));
+//
+//		System.out.println(getUUID());
 //	}
 
 	public static boolean isDouble(String str) {
