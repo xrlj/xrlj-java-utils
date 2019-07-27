@@ -1,105 +1,92 @@
 package com.xrlj.utils.authenticate;
 
 import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.*;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.xrlj.utils.PrintUtil;
+import com.xrlj.utils.security.Base64Utils;
+import com.xrlj.utils.time.DateUtil;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * https://github.com/auth0/java-jwt
  */
 public final class JwtUtils {
 
-    //token过期时间，默认5分钟
+    //token过期时间，默认30分钟
     private static final long EXPIRE_TIME_DEFAULT = 30 * 60 * 1000; //毫秒
 
     private JwtUtils() {
     }
 
     /**
-     * 生成签名的token。
-     *
-     * @param userId     用户id
-     * @param username   用户名
-     * @param userType   用户类型
-     * @param secret     签名秘钥，保存在服务端
-     * @param millisTime 过期时间，毫秒
-     * @return 返回签名的jwt，未加密。否则返回空字符串。
-     * @throws Exception
+     * 生成token。通用方法。
+     * @param issuer 发布者
+     * @param secret 签名秘钥
+     * @param millisTime 过期时间
+     * @param claims  附件信息。
+     * @return
      */
-    public static String genAnSignToken(long userId, String username, String userType, String secret, long millisTime) {
+    public static String genAnSignToken(String issuer, String secret, Long millisTime, Map<String,Object> claims) {
         try {
-            if (millisTime <= 0) {
+            if (millisTime == null || millisTime <= 0) {
                 millisTime = EXPIRE_TIME_DEFAULT;
             }
             //到期时间，当前时间延后time时长,单位毫秒
             Instant expTime = Instant.now().plusMillis(millisTime);
             Algorithm algorithm = Algorithm.HMAC256(secret);
-            String token = JWT.create()
-                    .withIssuer("xrlj")
-                    .withExpiresAt(new Date(expTime.toEpochMilli()))
-                    .withClaim("userId", userId)
-                    .withClaim("username", username)
-                    .withClaim("userType", userType)
-                    .sign(algorithm);
+            String token = "";
+            JWTCreator.Builder jwt = JWT.create()
+                    .withIssuer(issuer)
+                    .withExpiresAt(new Date(expTime.toEpochMilli()));
+            if (claims != null) {
+                Set<String> keys = claims.keySet();
+                for (String key: keys) {
+                    Object value = claims.get(key);
+                    if (value instanceof Boolean) {
+                        jwt.withClaim(key, (Boolean) value);
+                    } else if (value instanceof Integer) {
+                        jwt.withClaim(key, (Integer) value);
+                    } else if (value instanceof String) {
+                        jwt.withClaim(key, (String) value);
+                    } else if (value instanceof Long) {
+                        jwt.withClaim(key, (Long) value);
+                    } else if (value instanceof Date) {
+                        jwt.withClaim(key, (Date) value);
+                    } else if (value instanceof Double) {
+                        jwt.withClaim(key, (Double) value);
+                    } else {
+                        throw  new IllegalArgumentException();
+                    }
+                }
+            }
+            token = jwt.sign(algorithm);
             return token;
-        } catch (JWTCreationException exception) {
-            exception.printStackTrace();
+        } catch (JWTCreationException e) {
+            e.printStackTrace();
         }
         return "";
     }
 
     /**
      * 校验token
-     * @param userId
-     * @param username
-     * @param userType
      * @param secret
      * @param token
      * @return
      */
-    public static VerifyTokenResult verifyToken(long userId, String username, String userType, String secret,String token) {
+    public static VerifyTokenResult verifyToken(String issuer, String secret,String token) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("xrlj")
-                    .withClaim("userId", userId)
-                    .withClaim("username", username)
-                    .withClaim("userType", userType)
-                    .build();
-            verifier.verify(token);
-            return VerifyTokenResult.VERIFY_OK;
-        } catch (JWTVerificationException e) {
-            e.printStackTrace();
-            if (e instanceof InvalidClaimException) {
-                return VerifyTokenResult.INVALID_CLAIM_ERROR;
-            }
-            if (e instanceof SignatureVerificationException) {
-                return VerifyTokenResult.SIGNATURE_ERROR;
-            }
-            if (e instanceof TokenExpiredException) {
-                return VerifyTokenResult.TOKEN_EXPIRED_ERROR;
-            }
-        }
-        return VerifyTokenResult.VERIFY_ERROR_UNKNOW;
-    }
-
-    /**
-     * 校验token
-     * @param secret
-     * @param token
-     * @return
-     */
-    public static VerifyTokenResult verifyToken(String secret,String token) {
-        try {
-            Algorithm algorithm = Algorithm.HMAC256(secret);
-            JWTVerifier verifier = JWT.require(algorithm)
-                    .withIssuer("xrlj")
+                    .withIssuer(issuer)
                     .build();
             verifier.verify(token);
             return VerifyTokenResult.VERIFY_OK;
@@ -163,20 +150,30 @@ public final class JwtUtils {
     }
 
 //    public static void main(String[] args) throws Exception {
-//        String token = genAnSignToken(111, "zmt","a","abc",2 *60 * 1000);
-//        PrintUtil.println(token);
+////        Map<String, Object> claims = new HashMap<>();
+////        claims.put("username", "zmt");
+////        claims.put("userType", 1);
+////        claims.put("clientId","abcd");
+////        String token = genAnSignToken("xrlj", "sdfsdfadsaf", null, claims);
+////        PrintUtil.println(token);
 //
-//        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ4cmxqIiwidXNlclR5cGUiOiJhIiwiZXhwIjoxNTU4NzcxMDUxLCJ1c2VySWQiOjExMSwidXNlcm5hbWUiOiJ6bXQifQ.7LFGu4PDW-YRqWw4fI4pP_nPJQGvXHwC1FQXhlJIrEE";
-//        PrintUtil.println(isTokenExpired(token));
+////        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJjbGllbnRJZCI6ImFiY2QiLCJpc3MiOiJ4cmxqIiwidXNlclR5cGUiOjEsImV4cCI6MTU2NDE5NDE2MCwidXNlcm5hbWUiOiJ6bXQifQ.XVr0jiw7Gu0ve6lUfik2Y9fdXtii1JqzhCkD_DZg2pc";
+////        PrintUtil.println(isTokenExpired(token));
+////        PrintUtil.println(verifyToken("xrlj", "dd", token));
+////
+////        try {
+////            DecodedJWT jwt = JWT.decode(token);
+////            PrintUtil.println(jwt.getPayload());
+////            PrintUtil.println(Base64Utils.base64Decode(jwt.getPayload()));
+////            PrintUtil.println(jwt.getClaim("username").asString());
+////            Date aaa = jwt.getExpiresAt();
+////            PrintUtil.println(DateUtil.dateToString(aaa));
+////        } catch (JWTDecodeException exception){
+////            //Invalid token
+////        }
 //
-//        try {
-//            DecodedJWT jwt = JWT.decode(token);
-//            PrintUtil.println(Base64Utils.base64Decode(jwt.getPayload()));
-//            PrintUtil.println(jwt.getClaim("username").asString());
-//            Date aaa = jwt.getExpiresAt();
-//            PrintUtil.println(DateUtil.dateToString(aaa));
-//        } catch (JWTDecodeException exception){
-//            //Invalid token
-//        }
+////        String s = Base64Utils.base64Encode("{\"clientId\":\"abcd\",\"iss\":\"xrlj\",\"userType\":1,\"exp\":1564194160,\"username\":\"zmtt\"}");
+////        PrintUtil.println(s);
 //    }
+
 }
