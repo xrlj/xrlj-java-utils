@@ -1,4 +1,4 @@
-package com.xrlj.utils;
+package com.xrlj.utils.security;
 
 import com.xrlj.utils.security.Base64Utils;
 import com.xrlj.utils.security.RSAUtils;
