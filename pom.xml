@@ -65,13 +65,6 @@
 
     <build>
         <plugins>
-            <!--这样打包，不能作为lib形式调用-->
-            <!--<plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-            </plugin>-->
-
-            <!--打包成lib-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
