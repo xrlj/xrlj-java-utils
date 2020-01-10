@@ -1,5 +1,6 @@
 package com.xrlj.utils;
 
+import java.util.Random;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -19,8 +20,29 @@ public final class StringUtil extends org.apache.commons.lang3.StringUtils {
 //
 ////		System.out.println(isNumeric("3"));
 //
-//		System.out.println(getUUID());
+////		System.out.println(getUUID());
+//
+//		System.out.println(randomStr(6));
 //	}
+
+	private final static byte[] randBytes = {'q','w','e','r','t','y','u','i','o','p','a','s','d','f','g','h','j','k','l','z','x','c','v','b','n','m','Q','W','E','R',
+			'T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M','1','2','3','4','5','6','7','8','9','!','@','#','$','%','^','&','*','(',')','_','+'};
+
+	/**
+	 * 生成随机的字符串。有小写字母、大写字符、数字、一些特殊字符随机组成的字符串。
+	 * @param step 要返回的字符串的长度。
+	 * @return step长度的随机字符串。
+	 */
+	public static String randomStr(int step) {
+		byte[] resultBytes = new byte[step];
+		Random random = new Random();
+		for (int i = 0; i < step; i++) {
+			int index = random.nextInt(randBytes.length);
+			resultBytes[i] = randBytes[index];
+		}
+		String randStr = new String(resultBytes);
+		return randStr;
+	}
 
 	public static boolean isDouble(String str) {
 		if (null == str || "".equals(str)) {
