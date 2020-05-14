@@ -72,10 +72,10 @@
 
             <!-- javadoc生成插件。使用：http://maven.apache.org/components/plugins/maven-javadoc-plugin -->
             <!-- 执行命令：mvn javadoc:javadoc 将生成doc -->
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-            </plugin>
+            </plugin>-->
 
             <!--单元测试插件-->
             <plugin>
