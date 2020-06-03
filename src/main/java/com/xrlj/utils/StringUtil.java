@@ -13,6 +13,11 @@ import java.util.regex.Pattern;
  */
 public final class StringUtil extends org.apache.commons.lang3.StringUtils {
 
+	private final static byte[] randBytes = {'q','w','e','r','t','y','u','i','o','p','a','s','d','f','g','h','j','k','l','z','x','c','v','b','n','m','Q','W','E','R',
+			'T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M','1','2','3','4','5','6','7','8','9','!','@','#','$','%','^','&','*','(',')','_','+'};
+
+	private StringUtil(){}
+
 //	public static void main(String[] args) {
 ////		System.out.println(javaFieldName2SqlFieldName("UserName"));
 //
@@ -25,11 +30,8 @@ public final class StringUtil extends org.apache.commons.lang3.StringUtils {
 //		System.out.println(randomStr(6));
 //	}
 
-	private final static byte[] randBytes = {'q','w','e','r','t','y','u','i','o','p','a','s','d','f','g','h','j','k','l','z','x','c','v','b','n','m','Q','W','E','R',
-			'T','Y','U','I','O','P','A','S','D','F','G','H','J','K','L','Z','X','C','V','B','N','M','1','2','3','4','5','6','7','8','9','!','@','#','$','%','^','&','*','(',')','_','+'};
-
 	/**
-	 * 生成随机的字符串。有小写字母、大写字符、数字、一些特殊字符随机组成的字符串。
+	 * 生成随机的字符串。有小写字母、大写字符、数字、一些特殊字符随机组成的字符串。有相同的几率。
 	 * @param step 要返回的字符串的长度。
 	 * @return step长度的随机字符串。
 	 */
@@ -167,6 +169,33 @@ public final class StringUtil extends org.apache.commons.lang3.StringUtils {
 	public static String getUUID() {
 		UUID uuid = UUID.randomUUID();
 		return uuid.toString();
+	}
+
+	/**
+	 * 首字母转换成小写。
+	 * @param oriStr
+	 * @return
+	 */
+	public static final String firstCharToLower(String oriStr) {
+		if (isEmpty(oriStr)) {
+			throw new NullPointerException("参数不能为空");
+		}
+		String newStr = oriStr;
+		StringBuffer sb = new StringBuffer(); // 线程安全，比StringBuilder慢
+		for (int i = 0; i < oriStr.length(); i++) {
+			char c = oriStr.charAt(i);
+			if (i == 0 && Character.isLowerCase(c)) {
+				break;
+			}
+			if (i == 0) {
+				sb.append(Character.toLowerCase(c));
+			} else {
+				sb.append(c);
+			}
+			newStr = sb.toString();
+		}
+
+		return newStr;
 	}
 
 	// public static void main(String[] args) {
