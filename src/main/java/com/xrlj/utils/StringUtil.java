@@ -1,7 +1,6 @@
 package com.xrlj.utils;
 
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,17 +17,44 @@ public final class StringUtil extends org.apache.commons.lang3.StringUtils {
 
 	private StringUtil(){}
 
-//	public static void main(String[] args) {
-////		System.out.println(javaFieldName2SqlFieldName("UserName"));
-//
-////		System.out.println(isInteger("3.9"));
-//
-////		System.out.println(isNumeric("3"));
-//
-////		System.out.println(getUUID());
-//
+	public static void main(String[] args) {
+//		System.out.println(javaFieldName2SqlFieldName("UserName"));
+
+//		System.out.println(isInteger("3.9"));
+
+//		System.out.println(isNumeric("3"));
+
+//		System.out.println(getUUID());
+
 //		System.out.println(randomStr(6));
-//	}
+
+//		List<String> r = splitStrToList(",供应商,,,保理商,项目公司  ,", ",");
+		List<String> r = splitStrToList("项目公司", ",");
+		System.out.println(r);
+	}
+
+	/**
+	 * 多个字符用分割字符（比如英文逗号或者中文逗号）隔开，分割转成列表
+	 * @param strs	用分隔符隔开的字符串。
+	 * @param regex	分割符
+	 * @return
+	 */
+	public static List<String> splitStrToList(String strs, String regex) {
+		Objects.requireNonNull(strs, "strs is null");
+		Objects.requireNonNull(regex, "regex is null");
+		String[] ss = strs.split(regex);
+		if (ss == null || ss.length == 0) {
+			return null;
+		}
+		List<String> rList = new ArrayList<>();
+		for (int i = 0; i < ss.length; i++) {
+			String item = replaceBlank(ss[i]);
+			if (!regex.equals(item) && !"".equals(item)) {
+				rList.add(item);
+			}
+		}
+		return rList;
+	}
 
 	/**
 	 * 生成随机的字符串。有小写字母、大写字符、数字、一些特殊字符随机组成的字符串。有相同的几率。
